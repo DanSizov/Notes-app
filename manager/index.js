@@ -1,4 +1,5 @@
 import express from 'express';
+import cors from 'cors';
 import { createServer } from 'http';
 import { loggerMiddleware } from './middleware/loggerMiddleware.js';
 import NotesRoutes from './routes/noteRoutes.js';
@@ -7,6 +8,7 @@ import pkg from 'faye';
 const { Client: FayeClient } = pkg;
 
 const app = express();
+app.use(cors());
 const port = 3000;
 
 app.use(express.json());

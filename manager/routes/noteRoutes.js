@@ -37,7 +37,7 @@ class NotesRoutes {
         try {
             const noteId = req.params.id;
             const noteData = req.body;
-            const updatedNote = await this.notesManager.updatedNote(noteId, noteData);
+            const updatedNote = await this.notesManager.updateNote(noteId, noteData);
             res.status(200).json(updatedNote);
         } catch (error) {
             res.status(500).json({ error: error.message });
