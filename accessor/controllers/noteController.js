@@ -1,6 +1,7 @@
 import { Note } from 'mongoose-schemas';
 import { bayeux } from '../middleware/fayeSetup.js';
 class NoteController {
+    
     async createNote(req, res) {
         try {
             const idempotencyKey = req.headers['idempotency-key'];

@@ -10,7 +10,14 @@ class NotesManager {
         this.bayeux = null;
         this.httpServer = httpServer;
         this.fayeClient = fayeClient;
-        axiosRetry(axios, { retries: 3 });
+        axiosRetry(axios, {
+            retries: 3,
+            retryCondition: (error) => {
+                const shouldRetry = axiosRetry.isNetworkOrIdempotentRequestError(error);
+                const isRetryableMethod = error.config && (error.config.method === 'get' || error.config.method === 'post');
+                return shouldRetry && isRetryableMethod;
+            }
+        });
     }
 
     async createNote(noteData) {
