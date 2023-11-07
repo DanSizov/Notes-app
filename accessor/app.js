@@ -4,6 +4,7 @@ import { loggerMiddleware } from './middleware/loggerMiddleware.js';
 import noteRoutes from './routes/noteRoutes.js';
 import { createServer } from 'http';
 import { bayeux, attachBayeuxToServer } from './middleware/fayeSetup.js';
+import ErrorHandler from './helpers/errorHandler.js';
 
 const app = express();
 app.use(express.json());
@@ -19,6 +20,11 @@ app.use('/notes', noteRoutes);
 
 const server = createServer(app);
 attachBayeuxToServer(server);
+
+app.use((err, req, res, next) => {
+    err.message = ErrorHandler.getPublicErrorMessage(err, err.statusCode);
+    ErrorHandler.handleError(err, req, res, next);
+});
 
 server.listen(PORT, () => {
     console.log(`Accessor app listening on port ${PORT}`);

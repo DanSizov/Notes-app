@@ -1,8 +1,9 @@
 import { Note } from 'mongoose-schemas';
 import { bayeux } from '../middleware/fayeSetup.js';
+
 class NoteController {
     
-    async createNote(req, res) {
+    async createNote(req, res, next) {
         try {
             const idempotencyKey = req.headers['idempotency-key'];
             if (idempotencyKey) {
@@ -17,20 +18,20 @@ class NoteController {
             res.status(201).send(note);
             bayeux.getClient().publish('/notes', { action: 'create', note: note });
         } catch (error) {
-            res.status(500).send({ message: 'Error creating note', error });
+            next(error);
         }
     }
 
-    async getAllNotes(req, res) {
+    async getAllNotes(req, res, next) {
         try {
             const notes = await Note.find();
             res.status(200).send(notes);
         } catch (error) {
-            res.status(500).send({ message: 'Error fetching notes', error });
+            next(error);
         }
     }
 
-    async getOneNote(req, res) {
+    async getOneNote(req, res, next) {
         try {
             const note = await Note.findById(req.params.id);
             if (!note) {
@@ -38,11 +39,11 @@ class NoteController {
             }
             res.status(200).send(note);
         } catch (error) {
-            res.status(500).send({ message: 'Error fetching the note', error });
+            next(error);
         }
     }
 
-    async updateNote(req, res) {
+    async updateNote(req, res, next) {
         try {
             const idempotencyKey = req.headers['idempotency-key'];
             if (idempotencyKey) {
@@ -57,13 +58,13 @@ class NoteController {
                 return res.status(404).send({ message: 'Note not found' });
             }
             res.status(200).send(note);
-            bayeux.getClient().publish('/note', { action: 'update', note: note });
+            bayeux.getClient().publish('/notes', { action: 'update', note: note });
         } catch (error) {
-            res.status(500).send({ message: 'Error updating the note', error });
+            next(error);
         }
     }
 
-    async deleteNote(req, res) {
+    async deleteNote(req, res, next) {
         try {
             const idempotencyKey = req.headers['idempotency-key'];
             if (idempotencyKey) {
@@ -79,7 +80,7 @@ class NoteController {
             res.status(200).send({ message: 'Note deleted successfully' });
             bayeux.getClient().publish('/notes', { action: 'delete', noteId: req.params.id });
         } catch (error) {
-            res.status(500).send({ message: 'Error deleting the note', error });
+            next(error);
         }
     }
 }

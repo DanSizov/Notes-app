@@ -12,10 +12,13 @@ class NotesManager {
         this.fayeClient = fayeClient;
         axiosRetry(axios, {
             retries: 3,
+            retryDelay: (retryCount) => {
+                return axiosRetry.exponentialDelay(retryCount);
+            },
             retryCondition: (error) => {
                 const shouldRetry = axiosRetry.isNetworkOrIdempotentRequestError(error);
                 const isRetryableMethod = error.config && (error.config.method === 'get' || error.config.method === 'post');
-                return shouldRetry && isRetryableMethod;
+                return error.response  &&  error.response.status === 500;
             }
         });
     }
